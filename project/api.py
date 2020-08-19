@@ -8,7 +8,7 @@ import json
 import requests
 from flask import Flask, request, render_template, redirect, url_for
 
-app = Flask(__name__)  # Instancie une nouvelle application
+app = Flask(__name__, static_folder='static')  # Instancie une nouvelle application
 
 """ Cette classe permet d'aller attaquer l'API middleware contenant les informations clients"""
 
@@ -89,9 +89,8 @@ def verifiedClient():
 def dataClient(TrackingNumber):
     if request.method == "GET":
         return render_template("data.html",
-                               tracking_verified="Votre numéro de colis est valide! Pour continuer et avoir "
-                                                 "toutes les infos de votre colis, merci de rentrer votre adresse"
-                                                 " mail.")
+                               tracking_verified="Vous êtes dans notre base de données! Rentrer votre adresse mail "
+                                                 "afin d'avoir plus d'infromation sur votre colis.")
 
     if request.method == 'POST':
         customerEmail = str(request.form.get('EmailUser'))
@@ -101,306 +100,74 @@ def dataClient(TrackingNumber):
 
         # Récupère toutes les informations nécessaires sur le colis du consommateur
 
-        status = int(kolis_file['data']['data']['status'])
-        meetingLink = kolis_file['data']['data']['meetingLink']
-        meetingDateTime = kolis_file['data']['data']['meetingDatetime']
-        productWidth = kolis_file['data']['data']['productWidth']
-        productHeight = kolis_file['data']['data']['productHeight']
-        productWeight = kolis_file['data']['data']['productWeight']
-        relayMaps = kolis_file['data']['data']['relayMaps']
-        productLength = kolis_file['data']['data']['productLength']
-        productVolume = kolis_file['data']['data']['productVolume']
-        relayAddress = kolis_file['data']['data']['relayAddress']
-        relayName = kolis_file['data']['data']['relayName']
-        productDescription = kolis_file['data']['data']['productDescription']
+        if kolis_file['status'] == 500:
+            return render_template("data.html", error_mail=kolis_file['data']['message'])
 
-        horaires = {
-            "calendarOpening": {
-                "monday": {
-                    "plage1": "10:00 - 12:00",
-                    "plage2": "14:00 - 17:00"
-                },
-                "thursday": {
-                    "plage1": None,
-                    "plage2": "14:00 - 17:00"
-                },
-                "wednesday": {
-                    "plage1": "10:00 - 12:00",
-                    "plage2": None
-                },
-                "tuesday": {
-                    "plage1": None,
-                    "plage2": None
-                },
-                "friday": {
-                    "plage1": None,
-                    "plage2": None
-                },
-                "saturday": {
-                    "plage1": None,
-                    "plage2": "14:00 - 17:00"
-                },
-                "sunday": {
-                    "plage1": None,
-                    "plage2": "14:00 - 17:00"
-                }
-            }
-        }
+        elif kolis_file['status'] == 204:
+            return render_template("data.html", error_data=kolis_file['data']['message'])
 
-        json.dumps(horaires)
+        elif kolis_file['status'] == 200:
 
-        # Colis pas encore réceptionné
-        if status == 1:
-            return render_template("data.html", wait_reception="Votre colis est en cours de livraison!",
-                                   relayAddress=relayAddress, relayName=relayName,
-                                   resultmeeting="Vous pourrez prendre rendez-vous une fois le colis réceptionné par le relais.",
-                                   monday_morning="Fermé" if horaires['calendarOpening']['monday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['monday'][
-                                       'plage1'],
-                                   monday_afternoon="Fermé" if horaires['calendarOpening']['monday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['monday'][
-                                       'plage2'],
-                                   tuesday_morning="Fermé" if horaires['calendarOpening']['tuesday'][
-                                                                  'plage1'] is None else
-                                   horaires['calendarOpening']['tuesday'][
-                                       'plage1'],
-                                   tuesday_afternoon="Fermé" if horaires['calendarOpening']['tuesday'][
-                                                                    'plage2'] is None else
-                                   horaires['calendarOpening']['tuesday'][
-                                       'plage2'],
-                                   wednesday_morning="Fermé" if horaires['calendarOpening']['wednesday'][
-                                                                    'plage1'] is None else
-                                   horaires['calendarOpening']['wednesday'][
-                                       'plage1'],
-                                   wednesday_afternoon="Fermé" if horaires['calendarOpening']['wednesday'][
-                                                                      'plage2'] is None else
-                                   horaires['calendarOpening']['wednesday'][
-                                       'plage2'],
-                                   thursday_morning="Fermé" if horaires['calendarOpening']['thursday'][
-                                                                   'plage1'] is None else
-                                   horaires['calendarOpening']['thursday'][
-                                       'plage1'],
-                                   thursday_afternoon="Fermé" if horaires['calendarOpening']['thursday'][
-                                                                     'plage2'] is None else
-                                   horaires['calendarOpening']['thursday'][
-                                       'plage2'],
-                                   friday_morning="Fermé" if horaires['calendarOpening']['friday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['friday'][
-                                       'plage1'],
-                                   friday_afternoon="Fermé" if horaires['calendarOpening']['friday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['friday'][
-                                       'plage2'],
-                                   saturday_morning="Fermé" if horaires['calendarOpening']['saturday'][
-                                                                   'plage1'] is None else
-                                   horaires['calendarOpening']['saturday'][
-                                       'plage1'],
-                                   saturday_afternoon="Fermé" if horaires['calendarOpening']['saturday'][
-                                                                     'plage2'] is None else
-                                   horaires['calendarOpening']['saturday'][
-                                       'plage2'],
-                                   sunday_morning="Fermé" if horaires['calendarOpening']['sunday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['sunday'][
-                                       'plage1'],
-                                   sunday_afternoon="Fermé" if horaires['calendarOpening']['sunday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['sunday'][
-                                       'plage2'])
+            status = int(kolis_file['data']['data']['status'])
+            meetingLink = kolis_file['data']['data']['meetingLink']
+            meetingDateTime = kolis_file['data']['data']['meetingDatetime']
+            productWidth = kolis_file['data']['data']['productWidth']
+            productHeight = kolis_file['data']['data']['productHeight']
+            productWeight = kolis_file['data']['data']['productWeight']
+            relayMaps = kolis_file['data']['data']['relayMaps']
+            productLength = kolis_file['data']['data']['productLength']
+            productVolume = kolis_file['data']['data']['productVolume']
+            relayAddress = kolis_file['data']['data']['relayAddress']
+            relayName = kolis_file['data']['data']['relayName']
+            productDescription = kolis_file['data']['data']['productDescription']
+
+            if status == 1:
+                return render_template("data.html", wait_reception="Votre colis est en cours de livraison!",
+                                       relayAddress=relayAddress, relayName=relayName, relayMaps=relayMaps,
+                                       resultmeeting="Vous pourrez prendre rendez-vous une fois le colis réceptionné "
+                                                     "par le relais.",
+                                       status=kolis_file['status'],
+                                       image_waitreception=url_for('static', filename='Wait_reception.png'))
 
 
-        # Colis réceptionné mais pas de rendez-vous
-        elif status == 2:
-            return render_template("data.html", received="Votre colis est arrivé!",
-                                   result_meeting=meetingLink, relayAddress=relayAddress,
-                                   relayName=relayName, relayMaps=relayMaps,
-                                   monday_morning="Fermé" if horaires['calendarOpening']['monday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['monday'][
-                                       'plage1'],
-                                   monday_afternoon="Fermé" if horaires['calendarOpening']['monday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['monday'][
-                                       'plage2'],
-                                   tuesday_morning="Fermé" if horaires['calendarOpening']['tuesday'][
-                                                                  'plage1'] is None else
-                                   horaires['calendarOpening']['tuesday'][
-                                       'plage1'],
-                                   tuesday_afternoon="Fermé" if horaires['calendarOpening']['tuesday'][
-                                                                    'plage2'] is None else
-                                   horaires['calendarOpening']['tuesday'][
-                                       'plage2'],
-                                   wednesday_morning="Fermé" if horaires['calendarOpening']['wednesday'][
-                                                                    'plage1'] is None else
-                                   horaires['calendarOpening']['wednesday'][
-                                       'plage1'],
-                                   wednesday_afternoon="Fermé" if horaires['calendarOpening']['wednesday'][
-                                                                      'plage2'] is None else
-                                   horaires['calendarOpening']['wednesday'][
-                                       'plage2'],
-                                   thursday_morning="Fermé" if horaires['calendarOpening']['thursday'][
-                                                                   'plage1'] is None else
-                                   horaires['calendarOpening']['thursday'][
-                                       'plage1'],
-                                   thursday_afternoon="Fermé" if horaires['calendarOpening']['thursday'][
-                                                                     'plage2'] is None else
-                                   horaires['calendarOpening']['thursday'][
-                                       'plage2'],
-                                   friday_morning="Fermé" if horaires['calendarOpening']['friday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['friday'][
-                                       'plage1'],
-                                   friday_afternoon="Fermé" if horaires['calendarOpening']['friday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['friday'][
-                                       'plage2'],
-                                   saturday_morning="Fermé" if horaires['calendarOpening']['saturday'][
-                                                                   'plage1'] is None else
-                                   horaires['calendarOpening']['saturday'][
-                                       'plage1'],
-                                   saturday_afternoon="Fermé" if horaires['calendarOpening']['saturday'][
-                                                                     'plage2'] is None else
-                                   horaires['calendarOpening']['saturday'][
-                                       'plage2'],
-                                   sunday_morning="Fermé" if horaires['calendarOpening']['sunday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['sunday'][
-                                       'plage1'],
-                                   sunday_afternoon="Fermé" if horaires['calendarOpening']['sunday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['sunday'][
-                                       'plage2'])
+            # Colis réceptionné mais pas de rendez-vous
+            elif status == 2:
+                return render_template("data.html",
+                                       received="Votre colis est arrivé! Pensez à prendre un rendez-vous afin de "
+                                                "récupérer votre colis.",
+                                       result_meeting=meetingLink, relayAddress=relayAddress,
+                                       relayName=relayName, relayMaps=relayMaps,
+                                       status=kolis_file['status'],
+                                       image_received=url_for('static', filename='received.png'))
 
-        # Colis récpetionné et rdv fixé
-        elif status == 3:
-            return render_template("data.html", meeting_fixed="Votre colis est arrivé et vous avez un rendez-vous!",
-                                   monday_morning="Fermé" if horaires['calendarOpening']['monday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['monday'][
-                                       'plage1'],
-                                   monday_afternoon="Fermé" if horaires['calendarOpening']['monday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['monday'][
-                                       'plage2'],
-                                   tuesday_morning="Fermé" if horaires['calendarOpening']['tuesday'][
-                                                                  'plage1'] is None else
-                                   horaires['calendarOpening']['tuesday'][
-                                       'plage1'],
-                                   tuesday_afternoon="Fermé" if horaires['calendarOpening']['tuesday'][
-                                                                    'plage2'] is None else
-                                   horaires['calendarOpening']['tuesday'][
-                                       'plage2'],
-                                   wednesday_morning="Fermé" if horaires['calendarOpening']['wednesday'][
-                                                                    'plage1'] is None else
-                                   horaires['calendarOpening']['wednesday'][
-                                       'plage1'],
-                                   wednesday_afternoon="Fermé" if horaires['calendarOpening']['wednesday'][
-                                                                      'plage2'] is None else
-                                   horaires['calendarOpening']['wednesday'][
-                                       'plage2'],
-                                   thursday_morning="Fermé" if horaires['calendarOpening']['thursday'][
-                                                                   'plage1'] is None else
-                                   horaires['calendarOpening']['thursday'][
-                                       'plage1'],
-                                   thursday_afternoon="Fermé" if horaires['calendarOpening']['thursday'][
-                                                                     'plage2'] is None else
-                                   horaires['calendarOpening']['thursday'][
-                                       'plage2'],
-                                   friday_morning="Fermé" if horaires['calendarOpening']['friday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['friday'][
-                                       'plage1'],
-                                   friday_afternoon="Fermé" if horaires['calendarOpening']['friday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['friday'][
-                                       'plage2'],
-                                   saturday_morning="Fermé" if horaires['calendarOpening']['saturday'][
-                                                                   'plage1'] is None else
-                                   horaires['calendarOpening']['saturday'][
-                                       'plage1'],
-                                   saturday_afternoon="Fermé" if horaires['calendarOpening']['saturday'][
-                                                                     'plage2'] is None else
-                                   horaires['calendarOpening']['saturday'][
-                                       'plage2'],
-                                   sunday_morning="Fermé" if horaires['calendarOpening']['sunday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['sunday'][
-                                       'plage1'],
-                                   sunday_afternoon="Fermé" if horaires['calendarOpening']['sunday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['sunday'][
-                                       'plage2'])
+            # Colis récpetionné et rdv fixé
+            elif status == 3:
+                return render_template("data.html",
+                                       meeting_fixed="Votre colis est arrivé et vous avez un rendez-vous! Vous pouvez "
+                                                     "changer celui ci en cliquant sur le lien proposé ci dessous.",
+                                       result_meeting=meetingDateTime,
+                                       change_meeting="Vous pouvez changer de rendez vous en cliquand sur le lien "
+                                                      "suvant: " + meetingLink,
+                                       relayAddress=relayAddress,
+                                       relayName=relayName, relayMaps=relayMaps, status=kolis_file['status'],
+                                       image_meetingfixed=url_for('static', filename='meeting_fixed.png'))
 
-        # Colis déjà remis au client
-        elif status == 4:
-            return render_template("data.html", delivered_to_client="Votre colis vous a été remis.",
-                                   monday_morning="Fermé" if horaires['calendarOpening']['monday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['monday'][
-                                       'plage1'],
-                                   monday_afternoon="Fermé" if horaires['calendarOpening']['monday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['monday'][
-                                       'plage2'],
-                                   tuesday_morning="Fermé" if horaires['calendarOpening']['tuesday'][
-                                                                  'plage1'] is None else
-                                   horaires['calendarOpening']['tuesday'][
-                                       'plage1'],
-                                   tuesday_afternoon="Fermé" if horaires['calendarOpening']['tuesday'][
-                                                                    'plage2'] is None else
-                                   horaires['calendarOpening']['tuesday'][
-                                       'plage2'],
-                                   wednesday_morning="Fermé" if horaires['calendarOpening']['wednesday'][
-                                                                    'plage1'] is None else
-                                   horaires['calendarOpening']['wednesday'][
-                                       'plage1'],
-                                   wednesday_afternoon="Fermé" if horaires['calendarOpening']['wednesday'][
-                                                                      'plage2'] is None else
-                                   horaires['calendarOpening']['wednesday'][
-                                       'plage2'],
-                                   thursday_morning="Fermé" if horaires['calendarOpening']['thursday'][
-                                                                   'plage1'] is None else
-                                   horaires['calendarOpening']['thursday'][
-                                       'plage1'],
-                                   thursday_afternoon="Fermé" if horaires['calendarOpening']['thursday'][
-                                                                     'plage2'] is None else
-                                   horaires['calendarOpening']['thursday'][
-                                       'plage2'],
-                                   friday_morning="Fermé" if horaires['calendarOpening']['friday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['friday'][
-                                       'plage1'],
-                                   friday_afternoon="Fermé" if horaires['calendarOpening']['friday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['friday'][
-                                       'plage2'],
-                                   saturday_morning="Fermé" if horaires['calendarOpening']['saturday'][
-                                                                   'plage1'] is None else
-                                   horaires['calendarOpening']['saturday'][
-                                       'plage1'],
-                                   saturday_afternoon="Fermé" if horaires['calendarOpening']['saturday'][
-                                                                     'plage2'] is None else
-                                   horaires['calendarOpening']['saturday'][
-                                       'plage2'],
-                                   sunday_morning="Fermé" if horaires['calendarOpening']['sunday'][
-                                                                 'plage1'] is None else
-                                   horaires['calendarOpening']['sunday'][
-                                       'plage1'],
-                                   sunday_afternoon="Fermé" if horaires['calendarOpening']['sunday'][
-                                                                   'plage2'] is None else
-                                   horaires['calendarOpening']['sunday'][
-                                       'plage2'])
+            # Colis déjà remis au client
+            elif status == 4:
+                return render_template("data.html", delivered_to_client="Votre colis vous a été remis.",
+                                       status=kolis_file['status'],
+                                       relayAddress=relayAddress,
+                                       relayName=relayName, relayMaps=relayMaps,
+                                       image_delivered=url_for('static', filename='delivered.png'))
 
-        # Colis annulé
-        elif status > 4:
-            return render_template("data.html", order_canceled="Votre commande a été annnulé. Merci de contacter le "
-                                                               "support", relayAddress=relayAddress,
-                                   relayName=relayName, relayMaps=relayMaps)
-        else:
-            return render_template("data.html", error_mail="Désolé, votre email n'est pas correct.")
+            # Colis annulé
+            elif status > 4:
+                return render_template("data.html",
+                                       order_canceled="Votre commande a été annnulé. Merci de contacter le "
+                                                      "support", relayAddress=relayAddress,
+                                       relayName=relayName, relayMaps=relayMaps, status=kolis_file['status'],
+                                       image_canceled=url_for('static', filename='canceled.png'))
+
     else:
         return render_template("data.html", error_mail="Désolé, votre email n'est pas correct. Merci de la rentrer à "
                                                        "nouveau.")
