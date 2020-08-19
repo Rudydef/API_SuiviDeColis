@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+	<head>
+    <meta charset="utf-8">
+</head>
+    <title>Suivi</title>
+    <center>
+        <h1 style="color:green">Suivez l'avancée de votre colis!</h1>
+        <h2>{{ tracking_verified}}</h2>
+            <form method="POST">
+                <label>
+            <input type="search" name="EmailUser" placeholder="Email" class="wpcf7-form-control wpcf7-text">
+        </label> <br>
+        <button type="submit" value="Rechercher" class="wpcf7-form-control wpcf7-submit"> Rechercher </button>
+
+
+        <div>
+        <b>
+            <p>
+                {{ error_mail }}
+            </p>
+            <p>
+                {% if wait_reception != None %}
+                    {{ wait_reception }}
+                {% endif %}
+            </p>
+            <p>
+                {% if received != None %}
+                    {{received}}
+                {% endif %}
+            </p>
+            <p>
+                {% if meeting_fixed != None %}
+                    {{meeting_fixed}}
+                {% endif %}
+            </p>
+            <p>
+                {% if delivered_to_client != None %}
+                    {{delivered_to_client}}
+                {% endif %}
+            </p>
+            <p>
+                {% if order_canceled != None %}
+                    {{ order_canceled }}
+                {% endif %}
+            </p>
+        </b>
+        </div>
+
+            <div>
+
+            <p>
+                <b>Nom de votre relais:</b> {{ relayName}}
+            </p>
+            <p>
+                <b>Adresse relais :</b> {{ relayAddress }}
+            </p>
+                <p>
+                    <b>Maps: </b> {{ relayMaps }}
+                </p>
+                 <p>
+                <b>Rendez-vous:</b> {{ result_meeting }}<br>
+                {{ change_meeting }}
+            </p>
+            <p>
+                <table border="1" cellspacing="1" cellpadding="5">
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>Lundi</td>
+                        <td>Mardi</td>
+                        <td>Mecredi</td>
+                        <td>Jeudi</td>
+                        <td>Vendredi</td>
+                        <td>Samedi</td>
+                        <td>Dimanche</td>
+                    </tr>
+
+                    <tr>
+                        <td>Matin</td>
+                        <td> {{ monday_morning }}</td>
+                        <td> {{ thursday_morning }}</td>
+                        <td> {{ wednesday_morning }}</td>
+                        <td> {{ tuesday_morning }}</td>
+                        <td> {{ friday_morning }}</td>
+                        <td> {{ saturday_morning }}</td>
+                        <td> {{ sunday_morning }}</td>
+                    </tr>
+                    <tr>
+                        <td>Aprés-midi</td>
+                        <td> {{ monday_afternoon }}</td>
+                        <td> {{ thursday_afternoon }}</td>
+                        <td> {{ wednesday_afternoon }}</td>
+                        <td> {{ tuesday_afternoon }}</td>
+                        <td> {{ friday_afternoon }}</td>
+                        <td> {{ saturday_afternoon }}</td>
+                        <td> {{ sunday_afternoon }}</td>
+                    </tr>
+                </table>
+            </p>
+        </div>
+
+            </form>
+    </center>
+
+</html>

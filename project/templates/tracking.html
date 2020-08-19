@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="fr">
+	<head>
+    <meta charset="utf-8">
+</head>
+    <center>
+    <title> Suivi de colis</title>
+    <h1 style="color: green">Suivez l'avancée de votre colis!</h1>
+    <form method="POST">
+        <label>
+            <input type="search" name="TrackingNumber" value="{{user_tracking}}" placeholder="N° de colis" class="wpcf7-form-control wpcf7-text">
+        </label> <br>
+        <button type="submit" value="Rechercher" class="wpcf7-form-control wpcf7-submit"> Rechercher </button>
+        <div>
+            <p>
+                {{tracking_verified}}
+            </p>
+        </div>
+    </form>
+    </center>
+</html>
