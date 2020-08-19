@@ -37,8 +37,8 @@ class ApiKolis:
     def __init__(self, trackingNumber, customerEmail):
         self.trackingNumber = str(trackingNumber)
         self.customerEmail = str(customerEmail)
-        # Permet d'attaquer l'API api/chatbot/colis?trackingNumber={trackingNumber}&email={customerEmail} permettant de récuperer
-        # les informations du consommateur
+        # Permet d'attaquer l'API api/chatbot/colis?trackingNumber={trackingNumber}&email={customerEmail} permettant
+        # de récuperer les informations du consommateur
 
         url = "https://middlewarepreprod.misyl.net/api/chatbot/colis?trackingNumber=" + trackingNumber + "&email=" + customerEmail
 
@@ -98,8 +98,7 @@ def dataClient(TrackingNumber):
 
         kolis_file = json.loads(open('data/kolis.json', 'rb').read())
 
-        # Récupère toutes les informations nécessaires sur le colis du consommateur
-
+        # Test si l'email de l'utilisateur est connu
         if kolis_file['status'] == 500:
             return render_template("data.html", error_mail=kolis_file['data']['message'])
 
@@ -108,6 +107,7 @@ def dataClient(TrackingNumber):
 
         elif kolis_file['status'] == 200:
 
+            # Récupère toutes les informations nécessaires sur le colis du consommateur
             status = int(kolis_file['data']['data']['status'])
             meetingLink = kolis_file['data']['data']['meetingLink']
             meetingDateTime = kolis_file['data']['data']['meetingDatetime']
@@ -121,6 +121,7 @@ def dataClient(TrackingNumber):
             relayName = kolis_file['data']['data']['relayName']
             productDescription = kolis_file['data']['data']['productDescription']
 
+            # Colis en attente de réception
             if status == 1:
                 return render_template("data.html", wait_reception="Votre colis est en cours de livraison!",
                                        relayAddress=relayAddress, relayName=relayName, relayMaps=relayMaps,
